@@ -49,7 +49,7 @@ const rutina = {
     { nombre: "Sentadilla en smith", series: 2, reps: "5-8" },
     { nombre: "Peso muerto piernas rígidas", series: 2, reps: "5-8" },
     { nombre: "Prensa unilateral", series: 1, reps: "6-10" },
-    { nombre: "Extension de cuadriceps", series: 2, reps: "al fallo" },
+    { nombre: "Extension de cuadriceps", series: 2, reps: "fallo" },
     { nombre: "Aductores en máquina", series: 2, reps: "6-10" },
     { nombre: "Vuelos laterales", series: 2, reps: "10-12" },
   ],
@@ -66,6 +66,7 @@ function getRutinaDelDia() {
   const semana = Math.floor(
     (hoy - new Date(hoy.getFullYear(), 0, 1)) / (7 * 24 * 60 * 60 * 1000)
   );
+  console.log(semana);
 
   const rotacionPar = {
     1: "Torso A", // Lunes
@@ -147,7 +148,9 @@ function renderRutina() {
           document.getElementById(
             `restantes-${idx}`
           ).textContent = `Series restantes: ${seriesRestantes}`;
-          iniciarTemporizador(timer, ejer);
+          if (ejer.nombre !== "Movilidad") {
+            iniciarTemporizador(timer, ejer);
+          }
           guardarProgresoLocalStorage(rutinaDia, ejer.nombre, seriesRestantes);
           if (seriesRestantes === 0) {
             btn.style.display = "none";
@@ -169,10 +172,9 @@ function iniciarTemporizador(el, ejer) {
     ejer.nombre.toLowerCase().includes("vuelos") ||
     ejer.nombre.toLowerCase().includes("extensión") ||
     ejer.nombre.toLowerCase().includes("peck") ||
-    ejer.nombre.toLowerCase().includes("gemelos") ||
-    ejer.reps.includes("fallo")
-      ? 90
-      : 120;
+    ejer.nombre.toLowerCase().includes("gemelos")
+      ? 90 // 90 = aislados = 1:30 mins
+      : 120; // 120 = compuestos = 2 mins
 
   const intervalo = setInterval(() => {
     const m = Math.floor(segundos / 60);
@@ -181,6 +183,9 @@ function iniciarTemporizador(el, ejer) {
     if (--segundos < 0) {
       clearInterval(intervalo);
       el.textContent = "¡Descanso terminado!";
+      setTimeout(() => {
+        el.textContent = "";
+      }, 3000);
     }
   }, 1000);
 }
